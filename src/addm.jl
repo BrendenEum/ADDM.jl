@@ -34,7 +34,6 @@ Pkg.activate("addm")
 using Random
 using Distributions
 using Base.Threads
-using CSV
 
 include("ddm.jl")
 
@@ -548,8 +547,6 @@ function aDDM_simulate_trial_data_threads(addm::aDDM, fixationData::FixationData
     @threads for i in 1:n
         addmTrials[i] = aDDM_simulate_trial(addm, fixationData, rand(0:5), rand(0:5), cutOff=cutOff)
     end
-
-    CSV.write( "addmTrials.csv",  (data = addmTrials, ))
 
     return addmTrials
 end
