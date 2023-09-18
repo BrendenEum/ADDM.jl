@@ -36,8 +36,8 @@ include("addm.jl")
 include("util.jl")
 
 
-function aDDM_grid_search(addm::aDDM, fixationData::FixationData, dList::LinRange{Float64, Int64}, σList::LinRange{Float64, Int64},
-                          θList::LinRange{Float64, Int64}, n::Int64; trials::Int64=1000, cutOff::Int64=30000)
+function aDDM_grid_search(addm::aDDM, addmTrials::Dict{String, Vector{aDDMTrial}}, dList::Vector{Float64}, σList::Vector{Float64},
+                          θList::Vector{Float64}, n::Int64, subject::String)
     """
     """
     dMLEList = Vector{Float64}(undef, n)
@@ -50,16 +50,13 @@ function aDDM_grid_search(addm::aDDM, fixationData::FixationData, dList::LinRang
     param_combinations = [(d, σ, θ) for d in dList, σ in σList, θ in θList]
     
     @showprogress for i in 1:n
-        addmTrials = aDDM_simulate_trial_data_threads(addm, fixationData, trials, cutOff=cutOff)
         
         # Vectorized calculation of negative log-likelihood for all parameter combinations
-        neg_log_like_array = [aDDM_negative_log_likelihood_threads(addm, addmTrials, d, σ, θ) for (d, σ, θ) in param_combinations]
+        neg_log_like_array = [aDDM_negative_log_likelihood_threads(addm, addmTrials[subject], d, σ, θ) for (d, σ, θ) in param_combinations]
         
         # Find the index of the minimum negative log-likelihood and obtain the MLE parameters
         minIdx = argmin(neg_log_like_array)
         dMin, σMin, θMin = param_combinations[minIdx]
-        
-        println("obtained MLE parameters")
         
         # Store results in the preallocated arrays
         dMLEList[i] = dMin

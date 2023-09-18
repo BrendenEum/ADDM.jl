@@ -136,9 +136,9 @@ Base.@kwdef mutable struct aDDM
     params::Tuple{Number, Number, Number}
 
     function aDDM(d, σ, θ; barrier=1, nonDecisionTime=0, bias=0.0)
-        if θ < 0 || θ > 1
-            throw(DomainError("Error: θ parameter must be between 0 and 1."))
-        end
+        #if θ < 0 || θ > 1  
+        #    throw(DomainError("Error: θ parameter must be between 0 and 1.")) # Not for gainloss project!
+        #end
         DDM(d, σ, barrier=barrier, nonDecisionTime=nonDecisionTime, bias=bias)
         params = (d, σ, θ)
         new(d, σ, θ, barrier, nonDecisionTime, bias, params)
