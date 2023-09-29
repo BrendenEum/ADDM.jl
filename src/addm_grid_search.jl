@@ -37,34 +37,20 @@ include("util.jl")
 
 
 function aDDM_grid_search(addm::aDDM, addmTrials::Dict{String, Vector{aDDMTrial}}, dList::Vector{Float64}, σList::Vector{Float64},
-                          θList::Vector{Float64}, n::Int64, subject::String)
+                          θList::Vector{Float64}, bList::Vector{Float64}, subject::String)
     """
     """
-    dMLEList = Vector{Float64}(undef, n)
-    σMLEList = Vector{Float64}(undef, n)
-    θMLEList = Vector{Float64}(undef, n)
-
-    NNL_List = Vector{}(undef, n)
 
     # Create an array of tuples for all parameter combinations.
-    param_combinations = [(d, σ, θ) for d in dList, σ in σList, θ in θList]
+    param_combinations = [(d, σ, θ, b) for d in dList, σ in σList, θ in θList, b in bList]
     
-    @showprogress for i in 1:n
-        
-        # Vectorized calculation of negative log-likelihood for all parameter combinations
-        neg_log_like_array = [aDDM_negative_log_likelihood_threads(addm, addmTrials[subject], d, σ, θ) for (d, σ, θ) in param_combinations]
-        
-        # Find the index of the minimum negative log-likelihood and obtain the MLE parameters
-        minIdx = argmin(neg_log_like_array)
-        dMin, σMin, θMin = param_combinations[minIdx]
-        
-        # Store results in the preallocated arrays
-        dMLEList[i] = dMin
-        σMLEList[i] = σMin
-        θMLEList[i] = θMin
+    # Vectorized calculation of negative log-likelihood for all parameter combinations
+    neg_log_like_array = [aDDM_negative_log_likelihood_threads(addm, addmTrials[subject], d, σ, θ, b) for (d, σ, θ, b) in param_combinations]
+    
+    # Find the index of the minimum negative log-likelihood and obtain the MLE parameters
+    minIdx = argmin(neg_log_like_array)
+    dMin, σMin, θMin, bMin = param_combinations[minIdx]
+    NNL = minimum(neg_log_like_array)
 
-        #NNL: NNL_List[i] = neg_log_like_array
-    end
-
-    return dMLEList, σMLEList, θMLEList #NNL:, NNL_List
+    return dMin, σMin, θMin, bMin, NNL
 end

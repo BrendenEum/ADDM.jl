@@ -576,7 +576,7 @@ function aDDM_negative_log_likelihood(addmTrials::Vector{aDDMTrial}, d::Number, 
 end
 
 
-function aDDM_negative_log_likelihood_threads(addm::aDDM, addmTrials::Vector{aDDMTrial}, d::Number, σ::Number, θ::Number)
+function aDDM_negative_log_likelihood_threads(addm::aDDM, addmTrials::Vector{aDDMTrial}, d::Number, σ::Number, θ::Number, b::Number)
     """
     Calculates the negative log likelihood from a given dataset of DDMTrials and parameters
     of a model.
@@ -590,7 +590,7 @@ function aDDM_negative_log_likelihood_threads(addm::aDDM, addmTrials::Vector{aDD
       The negative log likelihood for the given vector of aDDMTrials and model.
     """
     # Calculate the negative log likelihood
-    addm = aDDM(d, σ, θ)
+    addm = aDDM(d, σ, θ; bias=b)
     likelihoods = Vector{Float64}(undef, length(addmTrials))
     
     @threads for i in 1:length(addmTrials)
